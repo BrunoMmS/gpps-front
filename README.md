@@ -1,6 +1,6 @@
 # gpps_front
 
-A new Flutter project.
+Un proyecto para la UNRN, este repo seria la parte **FRONTEND** y en otro repo tendriamos la parte **BACKEND**. Implementamos Flutter como tecnologia de Front, aprovechando su multiplataforma y su ya determinado tipo de estilos por default y su facil entendimiento en sintaxis para construir **"Widgets"**.
 
 ## Getting Started
 
