@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:gpps_front/models/User.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class LoginInterface extends StatefulWidget {
   const LoginInterface({super.key});
@@ -8,7 +11,7 @@ class LoginInterface extends StatefulWidget {
 }
 
 class _LoginInterfaceState extends State<LoginInterface> {
-  final _usernameController = TextEditingController();
+  final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
   double _opacity = 0.0;
@@ -23,15 +26,58 @@ class _LoginInterfaceState extends State<LoginInterface> {
     });
   }
 
+  // Función para realizar el login
+  Future<void> _loginUser() async {
+    final url = Uri.parse(
+      'http://127.0.0.1:8000/users/login',
+    ); // Cambia esta URL por la real
+
+    final userLogin = UserLogin(
+      email: _emailController.text,
+      password: _passwordController.text,
+    );
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(userLogin.toJson()),
+      );
+
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+        String role = responseData['role'];
+        final Map<String, String> roleRoutes = {
+          'Administrador': '/dashboardAdmin',
+          'Estudiante': '/dashboardStudent',
+          'TutorUNRN': '/dashboardTutorUnrn',
+          'TutorExterno': '/dashboardTutorExterno',
+          'DirectorCarrera': '/dashboardDirector',
+        };
+
+        String? route = roleRoutes[role];
+        if (route != null) {
+          Navigator.pushNamed(context, route);
+        } else {
+          _showError('Rol no reconocido');
+        }
+      } else {
+        final error = jsonDecode(response.body);
+        _showError(error['detail'] ?? 'Error desconocido');
+      }
+    } catch (e) {
+      _showError('Error de conexión: ${e.toString()}');
+    }
+  }
+
+  void _showError(String message) {
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('❌ $message')));
+  }
+
   @override
   Widget build(BuildContext context) {
-    final Map<String, String> roleRoutes = {
-      'Administrador': '/dashboardAdmin',
-      'Estudiante': '/dashboardStudent',
-      'TutorUNRN': '/dashboardTutorUnrn',
-      'TutorExterno': '/dashboardTutorExterno',
-      'DirectorCarrera': '/dashboardDirector',
-    };
     return Scaffold(
       backgroundColor: Colors.blueGrey[900],
       body: Center(
@@ -65,9 +111,9 @@ class _LoginInterfaceState extends State<LoginInterface> {
                       ),
                       const SizedBox(height: 24),
                       TextField(
-                        controller: _usernameController,
+                        controller: _emailController,
                         decoration: InputDecoration(
-                          labelText: "Nombre de Usuario",
+                          labelText: "Correo Electrónico",
                           filled: true,
                           fillColor: Colors.white10,
                           border: OutlineInputBorder(
@@ -97,10 +143,7 @@ class _LoginInterfaceState extends State<LoginInterface> {
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
-                          onPressed: () {
-                            String? route = roleRoutes['Administrador'];
-                            Navigator.pushNamed(context, route!);
-                          },
+                          onPressed: _loginUser, // Llamar a la función de login
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.tealAccent[700],
                             padding: const EdgeInsets.symmetric(vertical: 16),
