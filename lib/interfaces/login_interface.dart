@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:gpps_front/models/User.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
+import 'package:gpps_front/models/user.dart';
+import 'package:gpps_front/handlers/user_handler.dart'; // Asegúrate de importar el handler
 
 class LoginInterface extends StatefulWidget {
   const LoginInterface({super.key});
@@ -26,27 +25,16 @@ class _LoginInterfaceState extends State<LoginInterface> {
     });
   }
 
-  // Función para realizar el login
   Future<void> _loginUser() async {
-    final url = Uri.parse(
-      'http://127.0.0.1:8000/users/login',
-    ); // Cambia esta URL por la real
-
     final userLogin = UserLogin(
       email: _emailController.text,
       password: _passwordController.text,
     );
 
     try {
-      final response = await http.post(
-        url,
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode(userLogin.toJson()),
-      );
+      final user = await UserHandler().login(userLogin);
 
-      if (response.statusCode == 200) {
-        final responseData = jsonDecode(response.body);
-        String role = responseData['role'];
+      if (user != null) {
         final Map<String, String> roleRoutes = {
           'Administrador': '/dashboardAdmin',
           'Estudiante': '/dashboardStudent',
@@ -55,15 +43,15 @@ class _LoginInterfaceState extends State<LoginInterface> {
           'DirectorCarrera': '/dashboardDirector',
         };
 
-        String? route = roleRoutes[role];
+        String? route = roleRoutes[user.role];
+
         if (route != null) {
-          Navigator.pushNamed(context, route);
+          Navigator.pushReplacementNamed(context, route);
         } else {
-          _showError('Rol no reconocido');
+          _showError('Rol no reconocido: ${user.role}');
         }
       } else {
-        final error = jsonDecode(response.body);
-        _showError(error['detail'] ?? 'Error desconocido');
+        _showError('Error al iniciar sesión');
       }
     } catch (e) {
       _showError('Error de conexión: ${e.toString()}');
@@ -143,7 +131,7 @@ class _LoginInterfaceState extends State<LoginInterface> {
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
-                          onPressed: _loginUser, // Llamar a la función de login
+                          onPressed: _loginUser,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.tealAccent[700],
                             padding: const EdgeInsets.symmetric(vertical: 16),

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:gpps_front/models/User.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
+import 'package:gpps_front/components/minimal_snackbar.dart';
+import 'package:gpps_front/handlers/user_handler.dart';
+import 'package:gpps_front/models/user.dart';
 
 class RegisterInterface extends StatefulWidget {
   const RegisterInterface({super.key});
@@ -25,9 +25,9 @@ class _RegisterInterfaceState extends State<RegisterInterface> {
     'Secretaría Académica',
   ];
 
-  Future<void> _registerUser() async {
-    final url = Uri.parse('http://127.0.0.1:8000/users/register');
+  final UserHandler _userHandler = UserHandler();
 
+  Future<void> _registerUser() async {
     final user = UserCreate(
       username: _usernameController.text,
       lastname: _nameController.text,
@@ -38,28 +38,25 @@ class _RegisterInterfaceState extends State<RegisterInterface> {
     );
 
     try {
-      final response = await http.post(
-        url,
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode(user.toJson()),
-      );
+      final registeredUser = await _userHandler.register(user);
 
-      if (response.statusCode == 200) {
-        ScaffoldMessenger.of(
+      if (registeredUser != null) {
+        showMinimalSnackBar(
           context,
-        ).showSnackBar(const SnackBar(content: Text('Registro exitoso')));
+          message: '✅ Registro exitoso',
+          icon: Icons.check_circle_outline,
+          color: Colors.green,
+        );
         Navigator.pop(context);
       } else {
-        // Si no es 200, muestra el error
-        final error = jsonDecode(response.body);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('❌ Error: ${error["detail"] ?? "desconocido"}'),
-          ),
+        showMinimalSnackBar(
+          context,
+          message: '❌ Error: Usuario no registrado',
+          icon: Icons.error_outline,
+          color: Colors.redAccent,
         );
       }
     } catch (e) {
-      // Capturar errores de red o cualquier otro tipo de error
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text('❌ Error: ${e.toString()}')));
@@ -127,7 +124,7 @@ class _RegisterInterfaceState extends State<RegisterInterface> {
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
-                        onPressed: _registerUser, // Llama al método de registro
+                        onPressed: _registerUser,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.tealAccent[700],
                           padding: const EdgeInsets.symmetric(vertical: 16),
@@ -146,9 +143,7 @@ class _RegisterInterfaceState extends State<RegisterInterface> {
                       width: double.infinity,
                       child: ElevatedButton(
                         onPressed: () {
-                          Navigator.pop(
-                            context,
-                          ); // Regresa a la pantalla anterior
+                          Navigator.pop(context);
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color.fromARGB(
@@ -202,7 +197,6 @@ class _RegisterInterfaceState extends State<RegisterInterface> {
     );
   }
 
-  // Método para construir el Dropdown de roles
   Widget _buildRoleDropdown() {
     return DropdownButtonFormField<String>(
       value: _selectedRole,
@@ -212,7 +206,7 @@ class _RegisterInterfaceState extends State<RegisterInterface> {
           }).toList(),
       onChanged: (value) {
         setState(() {
-          _selectedRole = value!; // Actualiza el rol seleccionado
+          _selectedRole = value!;
         });
       },
       dropdownColor: Colors.blueGrey[700],
@@ -227,4 +221,22 @@ class _RegisterInterfaceState extends State<RegisterInterface> {
       ),
     );
   }
+}
+
+void showMinimalSnackBar(
+  BuildContext context, {
+  required String message,
+  IconData icon = Icons.info_outline,
+  Color color = Colors.teal,
+  Duration duration = const Duration(seconds: 3),
+}) {
+  final overlay = Overlay.of(context);
+  final overlayEntry = OverlayEntry(
+    builder:
+        (context) =>
+            MinimalSnackBar(message: message, icon: icon, color: color),
+  );
+
+  overlay.insert(overlayEntry);
+  Future.delayed(duration, overlayEntry.remove);
 }

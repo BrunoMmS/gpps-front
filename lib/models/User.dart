@@ -27,7 +27,7 @@ class User {
     return User(
       id: json['id'],
       username: json['username'],
-      lastname: json['lastname'],
+      lastname: json['lastname'] ?? '',
       email: json['email'],
       role: json['role'],
     );
