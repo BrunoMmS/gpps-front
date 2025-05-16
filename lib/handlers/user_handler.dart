@@ -6,7 +6,7 @@ import 'package:gpps_front/models/user.dart';
 class UserHandler {
   final String _baseUrl = const String.fromEnvironment(
     'BASE_URL_USER',
-    defaultValue: 'http://127.0.0.1:8000/users',
+    defaultValue: 'http://25.4.234.159:8000/users',
   );
 
   Future<User?> login(UserLogin userLogin) async {
