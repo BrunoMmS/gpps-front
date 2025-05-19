@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gpps_front/models/user.dart';
-import 'package:gpps_front/handlers/user_handler.dart'; // Asegúrate de importar el handler
+import 'package:gpps_front/handlers/user_handler.dart';
 
 class LoginInterface extends StatefulWidget {
   const LoginInterface({super.key});
