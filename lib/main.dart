@@ -4,7 +4,10 @@ import 'package:gpps_front/interfaces/dashboards/dashboard_admin_interface.dart'
 import 'package:gpps_front/interfaces/dashboards/dashboard_director_interface.dart';
 import 'package:gpps_front/interfaces/dashboards/dashboard_student_interface.dart';
 import 'package:gpps_front/interfaces/login_interface.dart';
+import 'package:gpps_front/interfaces/project/project_detail_interface.dart';
+import 'package:gpps_front/interfaces/project/propose_project_interface.dart';
 import 'package:gpps_front/interfaces/register_interface.dart';
+import 'package:gpps_front/models/rol_enum.dart';
 import 'package:gpps_front/role_guard.dart';
 
 void main() {
@@ -25,25 +28,45 @@ class MyApp extends StatelessWidget {
         ),
       ),
       home: const LoginInterface(),
+
       routes: {
         '/register': (context) => const RegisterInterface(),
+
         '/dashboardStudent':
-            (context) => const RoleGuard(
-              allowedRoles: ['Estudiante'],
-              child: DashboardStudent(),
+            (context) => RoleGuard(
+              allowedRoles: [Rol.student.backendValue],
+              child: const DashboardStudent(),
             ),
+
         '/dashboardDirector':
-            (context) => const RoleGuard(
+            (context) => RoleGuard(
               allowedRoles: ['Director'],
-              child: DashboardDirector(),
+              child: const DashboardDirector(),
             ),
+
         '/dashboardAdmin':
-            (context) => const RoleGuard(
-              allowedRoles: ['Administrador'],
-              child: DashboardAdmin(),
+            (context) => RoleGuard(
+              allowedRoles: [Rol.admin.backendValue],
+              child: const DashboardAdmin(),
             ),
+
         '/unauthorized': (context) => const UnauthorizedPage(),
+
+        '/proposeProject':
+            (context) => RoleGuard(
+              allowedRoles: [Rol.student.backendValue, Rol.admin.backendValue],
+              child: const ProposeProjectPage(),
+            ),
+        '/projectDetails':
+            (context) => RoleGuard(
+              allowedRoles: [Rol.student.backendValue, Rol.admin.backendValue],
+              child: ProjectDetailPage(),
+            ),
       },
     );
   }
+}
+
+class ProjectDetailsPage {
+  const ProjectDetailsPage();
 }

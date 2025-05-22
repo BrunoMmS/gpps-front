@@ -46,4 +46,20 @@ class UserHandler {
       throw Exception(error['detail'] ?? 'Error desconocido al registrarse');
     }
   }
+
+  Future<User?> getUserById(int id) async {
+    final url = Uri.parse('$_baseUrl/$id');
+
+    final response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      final responseData = jsonDecode(response.body);
+      return User.fromJson(responseData);
+    } else {
+      final error = jsonDecode(response.body);
+      throw Exception(
+        error['detail'] ?? 'Error desconocido al obtener usuario',
+      );
+    }
+  }
 }

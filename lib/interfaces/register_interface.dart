@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gpps_front/components/minimal_snackbar.dart';
 import 'package:gpps_front/handlers/user_handler.dart';
+import 'package:gpps_front/models/rol_enum.dart';
 import 'package:gpps_front/models/user.dart';
 
 class RegisterInterface extends StatefulWidget {
@@ -15,24 +16,25 @@ class _RegisterInterfaceState extends State<RegisterInterface> {
   final _emailController = TextEditingController();
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
-  String _selectedRole = 'Estudiante';
 
-  final List<String> _roles = [
-    'Estudiante',
-    'Tutor',
-    'Administrador',
-    'Entidad Externa',
-    'Secretaría Académica',
-  ];
+  Rol _selectedRole = Rol.student;
+
+  late final List<String> _roles;
 
   final UserHandler _userHandler = UserHandler();
+
+  @override
+  void initState() {
+    super.initState();
+    _roles = Rol.values.map((r) => r.displayName).toList();
+  }
 
   Future<void> _registerUser() async {
     final user = UserCreate(
       username: _usernameController.text,
       lastname: _nameController.text,
       email: _emailController.text,
-      role: _selectedRole,
+      role: _selectedRole.backendValue,
       password: _passwordController.text,
       id: 0,
     );
@@ -71,7 +73,7 @@ class _RegisterInterfaceState extends State<RegisterInterface> {
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16),
           child: ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: 450),
+            constraints: const BoxConstraints(maxWidth: 450),
             child: Card(
               elevation: 12,
               shape: RoundedRectangleBorder(
@@ -83,7 +85,7 @@ class _RegisterInterfaceState extends State<RegisterInterface> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(
+                    const Text(
                       "¡¡ Únete a Nosotros !!",
                       style: TextStyle(
                         fontSize: 32,
@@ -173,7 +175,6 @@ class _RegisterInterfaceState extends State<RegisterInterface> {
     );
   }
 
-  // Método para construir un campo de texto
   Widget _buildTextField({
     required TextEditingController controller,
     required String label,
@@ -185,10 +186,10 @@ class _RegisterInterfaceState extends State<RegisterInterface> {
       controller: controller,
       obscureText: obscureText,
       keyboardType: keyboardType,
-      style: TextStyle(color: Colors.white),
+      style: const TextStyle(color: Colors.white),
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: TextStyle(color: Colors.white70),
+        labelStyle: const TextStyle(color: Colors.white70),
         prefixIcon: Icon(icon, color: Colors.white54),
         filled: true,
         fillColor: Colors.white10,
@@ -199,22 +200,25 @@ class _RegisterInterfaceState extends State<RegisterInterface> {
 
   Widget _buildRoleDropdown() {
     return DropdownButtonFormField<String>(
-      value: _selectedRole,
+      value: _selectedRole.displayName,
       items:
           _roles.map((role) {
             return DropdownMenuItem(value: role, child: Text(role));
           }).toList(),
       onChanged: (value) {
         setState(() {
-          _selectedRole = value!;
+          final rol = RolExtension.fromDisplayName(value!);
+          if (rol != null) {
+            _selectedRole = rol;
+          }
         });
       },
       dropdownColor: Colors.blueGrey[700],
-      style: TextStyle(color: Colors.white),
+      style: const TextStyle(color: Colors.white),
       decoration: InputDecoration(
         labelText: 'Rol',
-        labelStyle: TextStyle(color: Colors.white70),
-        prefixIcon: Icon(Icons.group, color: Colors.white54),
+        labelStyle: const TextStyle(color: Colors.white70),
+        prefixIcon: const Icon(Icons.group, color: Colors.white54),
         filled: true,
         fillColor: Colors.white10,
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),

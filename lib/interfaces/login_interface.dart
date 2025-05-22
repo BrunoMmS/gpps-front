@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:gpps_front/models/rol_enum.dart';
 import 'package:gpps_front/models/user.dart';
-import 'package:gpps_front/handlers/user_handler.dart'; // Asegúrate de importar el handler
+import 'package:gpps_front/handlers/user_handler.dart';
 
 class LoginInterface extends StatefulWidget {
   const LoginInterface({super.key});
@@ -18,7 +19,7 @@ class _LoginInterfaceState extends State<LoginInterface> {
   @override
   void initState() {
     super.initState();
-    Future.delayed(Duration(milliseconds: 100), () {
+    Future.delayed(const Duration(milliseconds: 100), () {
       setState(() {
         _opacity = 1.0;
       });
@@ -35,20 +36,31 @@ class _LoginInterfaceState extends State<LoginInterface> {
       final user = await UserHandler().login(userLogin);
 
       if (user != null) {
-        final Map<String, String> roleRoutes = {
-          'Administrador': '/dashboardAdmin',
-          'Estudiante': '/dashboardStudent',
-          'TutorUNRN': '/dashboardTutorUnrn',
-          'TutorExterno': '/dashboardTutorExterno',
-          'DirectorCarrera': '/dashboardDirector',
+        // Convertir el string de backend a Rol enum
+        final Rol? rolEnum = RolExtension.fromBackendValue(user.role);
+        print('Rol backend en login: ${user.role}');
+        if (rolEnum == null) {
+          _showError('Rol no reconocido: ${user.role}');
+          return;
+        }
+
+        // Mapear enum a rutas
+        final Map<Rol, String> roleRoutes = {
+          Rol.admin: '/dashboardAdmin',
+          Rol.student: '/dashboardStudent',
+          Rol.teacher: '/dashboardTutorUnrn',
+          Rol.teacher2: '/dashboardTutorExterno',
+          Rol.exEntity: '/dashboardEntidadExterna',
         };
 
-        String? route = roleRoutes[user.role];
+        final route = roleRoutes[rolEnum];
 
         if (route != null) {
           Navigator.pushReplacementNamed(context, route);
         } else {
-          _showError('Rol no reconocido: ${user.role}');
+          _showError(
+            'Ruta no configurada para el rol: ${rolEnum.backendValue}',
+          );
         }
       } else {
         _showError('Error al iniciar sesión');
@@ -73,10 +85,10 @@ class _LoginInterfaceState extends State<LoginInterface> {
           padding: const EdgeInsets.all(16),
           child: AnimatedOpacity(
             opacity: _opacity,
-            duration: Duration(milliseconds: 800),
+            duration: const Duration(milliseconds: 800),
             curve: Curves.easeInOut,
             child: ConstrainedBox(
-              constraints: BoxConstraints(maxWidth: 400),
+              constraints: const BoxConstraints(maxWidth: 400),
               child: Card(
                 elevation: 12,
                 shape: RoundedRectangleBorder(
@@ -88,7 +100,7 @@ class _LoginInterfaceState extends State<LoginInterface> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(
+                      const Text(
                         "G.P.P.S",
                         style: TextStyle(
                           fontSize: 36,
@@ -107,9 +119,9 @@ class _LoginInterfaceState extends State<LoginInterface> {
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
-                          labelStyle: TextStyle(color: Colors.white70),
+                          labelStyle: const TextStyle(color: Colors.white70),
                         ),
-                        style: TextStyle(color: Colors.white),
+                        style: const TextStyle(color: Colors.white),
                         autofocus: true,
                       ),
                       const SizedBox(height: 16),
@@ -123,9 +135,9 @@ class _LoginInterfaceState extends State<LoginInterface> {
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
-                          labelStyle: TextStyle(color: Colors.white70),
+                          labelStyle: const TextStyle(color: Colors.white70),
                         ),
-                        style: TextStyle(color: Colors.white),
+                        style: const TextStyle(color: Colors.white),
                       ),
                       const SizedBox(height: 24),
                       SizedBox(
@@ -139,13 +151,13 @@ class _LoginInterfaceState extends State<LoginInterface> {
                               borderRadius: BorderRadius.circular(12),
                             ),
                           ),
-                          child: Text(
+                          child: const Text(
                             "Iniciar sesión",
                             style: TextStyle(fontSize: 18, color: Colors.black),
                           ),
                         ),
                       ),
-                      SizedBox(height: 16),
+                      const SizedBox(height: 16),
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
@@ -164,7 +176,7 @@ class _LoginInterfaceState extends State<LoginInterface> {
                               borderRadius: BorderRadius.circular(12),
                             ),
                           ),
-                          child: Text(
+                          child: const Text(
                             "Registrate aqui",
                             style: TextStyle(fontSize: 18, color: Colors.black),
                           ),
