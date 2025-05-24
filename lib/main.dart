@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:gpps_front/interfaces/Unauthorized.dart';
 import 'package:gpps_front/interfaces/dashboards/dashboard_admin_interface.dart';
-import 'package:gpps_front/interfaces/dashboards/dashboard_director_interface.dart';
 import 'package:gpps_front/interfaces/dashboards/dashboard_student_interface.dart';
 import 'package:gpps_front/interfaces/login_interface.dart';
 import 'package:gpps_front/interfaces/project/project_detail_interface.dart';
 import 'package:gpps_front/interfaces/project/propose_project_interface.dart';
+import 'package:gpps_front/interfaces/project/propose_projects_admin.dart';
 import 'package:gpps_front/interfaces/register_interface.dart';
 import 'package:gpps_front/models/rol_enum.dart';
 import 'package:gpps_front/role_guard.dart';
@@ -31,17 +31,11 @@ class MyApp extends StatelessWidget {
 
       routes: {
         '/register': (context) => const RegisterInterface(),
-
+        '/login': (context) => const LoginInterface(),
         '/dashboardStudent':
             (context) => RoleGuard(
               allowedRoles: [Rol.student.backendValue],
               child: const DashboardStudent(),
-            ),
-
-        '/dashboardDirector':
-            (context) => RoleGuard(
-              allowedRoles: ['Director'],
-              child: const DashboardDirector(),
             ),
 
         '/dashboardAdmin':
@@ -61,6 +55,11 @@ class MyApp extends StatelessWidget {
             (context) => RoleGuard(
               allowedRoles: [Rol.student.backendValue, Rol.admin.backendValue],
               child: ProjectDetailPage(),
+            ),
+        '/proposeProjectsAdmin':
+            (context) => RoleGuard(
+              allowedRoles: [Rol.admin.backendValue, Rol.exEntity.backendValue],
+              child: const InactiveProjectsPage(),
             ),
       },
     );

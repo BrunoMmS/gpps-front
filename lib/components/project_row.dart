@@ -23,7 +23,7 @@ class ProjectRow extends StatelessWidget {
           ),
         ),
         subtitle: Text(
-          project.active ? "Activo" : "Inactivo",
+          project.active ? "Confirmado" : "No Confirmado",
           style: TextStyle(
             color: project.active ? Colors.greenAccent : Colors.redAccent,
             fontSize: 14,

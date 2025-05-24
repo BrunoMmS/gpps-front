@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gpps_front/components/dashboard_button.dart';
 import 'package:gpps_front/components/logout_button.dart';
+import 'package:gpps_front/components/notification_button.dart';
 import 'package:gpps_front/components/welcome_banner.dart';
 import 'package:gpps_front/models/user.dart';
 import 'package:gpps_front/models/user_session.dart';
@@ -38,7 +39,7 @@ class _DashboardAdminState extends State<DashboardAdmin> {
         ),
         backgroundColor: Colors.blueGrey[900],
         centerTitle: true,
-        actions: [LogoutButton()],
+        actions: [NotificationButton(), LogoutButton()],
       ),
       backgroundColor: Colors.blueGrey[800],
       body: Center(
@@ -77,7 +78,7 @@ class _DashboardAdminState extends State<DashboardAdmin> {
                       icon: Icons.lightbulb_outline,
                       label: 'Ver Propuestas',
                       onTap: () {
-                        Navigator.pushNamed(context, '/propuestas');
+                        Navigator.pushNamed(context, '/proposeProjectsAdmin');
                       },
                     ),
                     DashboardButton(

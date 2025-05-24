@@ -6,7 +6,9 @@ class LogoutButton extends StatelessWidget {
 
   void _logout(BuildContext context) async {
     await UserSession().logout();
-    Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+    });
   }
 
   @override

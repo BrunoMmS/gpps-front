@@ -73,4 +73,33 @@ class ProjectHandler {
       throw Exception('Error asignando usuario a proyecto: ${response.body}');
     }
   }
+
+  Future<List<Project>> fetchInactiveProjects() async {
+    final url = Uri.parse('$baseUrl/projects/');
+    final response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      final List<dynamic> jsonList = json.decode(response.body);
+      return jsonList
+          .map((json) => Project.fromJson(json))
+          .where((project) => !project.active)
+          .toList();
+    } else {
+      throw Exception('Error al obtener proyectos inactivos');
+    }
+  }
+
+  approveProject(int projectId) {
+    final url = Uri.parse('$baseUrl/projects/approve/$projectId');
+    return http
+        .put(url)
+        .then((response) {
+          if (response.statusCode != 200) {
+            throw Exception('Error al aprobar el proyecto: ${response.body}');
+          }
+        })
+        .catchError((error) {
+          throw Exception('Error al aprobar el proyecto: $error');
+        });
+  }
 }

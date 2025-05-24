@@ -1,5 +1,3 @@
-import 'package:gpps_front/models/rol_enum.dart';
-
 class User {
   final int id;
   final String username;

@@ -15,7 +15,6 @@ class _ProposeProjectPageState extends State<ProposeProjectPage> {
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
 
-  bool _active = true;
   DateTime _startDate = DateTime.now();
   DateTime? _endDate;
 
@@ -134,7 +133,7 @@ class _ProposeProjectPageState extends State<ProposeProjectPage> {
         id: 0,
         title: _titleController.text.trim(),
         description: _descriptionController.text.trim(),
-        active: _active,
+        active: false,
         startDate: _startDate,
         userId: user.id,
         endDate: _endDate,
@@ -263,23 +262,6 @@ class _ProposeProjectPageState extends State<ProposeProjectPage> {
                     decoration: BoxDecoration(
                       color: _textFieldFillColor,
                       borderRadius: BorderRadius.circular(12.0),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text('Activo', style: TextStyle(color: _textColor)),
-                        Switch(
-                          activeColor: _tealColor,
-                          inactiveThumbColor: _textColor.withOpacity(0.5),
-                          inactiveTrackColor: _textColor.withOpacity(0.2),
-                          value: _active,
-                          onChanged: (val) {
-                            setState(() {
-                              _active = val;
-                            });
-                          },
-                        ),
-                      ],
                     ),
                   ),
                   const SizedBox(height: 16),

@@ -5,6 +5,7 @@ import 'package:gpps_front/components/welcome_banner.dart';
 import 'package:gpps_front/models/rol_enum.dart';
 import 'package:gpps_front/models/user.dart';
 import 'package:gpps_front/models/user_session.dart';
+import '../../components/notification_button.dart';
 import '../../models/project.dart';
 import '../../components/project_row.dart';
 import '../../handlers/project_handler.dart';
@@ -39,9 +40,7 @@ class _DashboardStudentState extends State<DashboardStudent> {
         setState(() {
           projects = userProjects;
         });
-      } catch (e) {
-        print('Error cargando proyectos: $e');
-      }
+      } catch (e) {}
     }
   }
 
@@ -59,7 +58,11 @@ class _DashboardStudentState extends State<DashboardStudent> {
         foregroundColor: textColor,
         centerTitle: true,
         elevation: 4,
-        actions: [LogoutButton(), const SizedBox(width: 60)],
+        actions: [
+          NotificationButton(),
+          LogoutButton(),
+          const SizedBox(width: 60),
+        ],
       ),
       backgroundColor: backgroundColor,
       body: Center(
@@ -152,11 +155,6 @@ class _DashboardStudentState extends State<DashboardStudent> {
                         mainAxisSpacing: 24,
                         crossAxisSpacing: 24,
                         children: [
-                          DashboardButton(
-                            icon: Icons.notifications_active_outlined,
-                            label: "Notificaciones",
-                            onTap: () {},
-                          ),
                           DashboardButton(
                             icon: Icons.assignment_add,
                             label: "Inscribirse",

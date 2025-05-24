@@ -38,7 +38,6 @@ class _LoginInterfaceState extends State<LoginInterface> {
       if (user != null) {
         // Convertir el string de backend a Rol enum
         final Rol? rolEnum = RolExtension.fromBackendValue(user.role);
-        print('Rol backend en login: ${user.role}');
         if (rolEnum == null) {
           _showError('Rol no reconocido: ${user.role}');
           return;

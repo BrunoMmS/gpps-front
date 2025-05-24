@@ -63,7 +63,7 @@ class ProjectDetailPage extends StatelessWidget {
                     ),
                     const SizedBox(width: 12),
                     Text(
-                      project.active ? "Activo" : "Inactivo",
+                      project.active ? "Confirmado" : "No Confirmado",
                       style: TextStyle(
                         fontSize: 18,
                         color:
