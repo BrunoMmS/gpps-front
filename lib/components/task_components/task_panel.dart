@@ -1,0 +1,66 @@
+import 'package:flutter/material.dart';
+import 'package:gpps_front/models/activity.dart';
+import 'package:gpps_front/models/task.dart';
+
+import 'add_task_dialog.dart';
+
+class TaskPanel extends StatelessWidget {
+  final Activity activity;
+  final Function(Task) onTaskAdded;
+
+  const TaskPanel({
+    super.key,
+    required this.activity,
+    required this.onTaskAdded,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Row(
+          children: [
+            const Padding(
+              padding: EdgeInsets.all(12),
+              child: Text(
+                "Tareas",
+                style: TextStyle(fontSize: 20, color: Colors.white),
+              ),
+            ),
+            const Spacer(),
+            IconButton(
+              icon: const Icon(Icons.add, color: Colors.white),
+              onPressed: () async {
+                final newTask = await showDialog<Task>(
+                  context: context,
+                  builder: (_) => const AddTaskDialog(),
+                );
+                if (newTask != null) {
+                  onTaskAdded(newTask);
+                }
+              },
+            ),
+          ],
+        ),
+        Expanded(
+          child: ListView.builder(
+            itemCount: activity.tasks.length,
+            itemBuilder: (context, index) {
+              final task = activity.tasks[index];
+              return ListTile(
+                leading: Icon(
+                  task.done ? Icons.check_circle : Icons.radio_button_unchecked,
+                  color: task.done ? Colors.greenAccent : Colors.white54,
+                ),
+                title: Text(
+                  task.description,
+                  style: const TextStyle(color: Colors.white),
+                ),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+}

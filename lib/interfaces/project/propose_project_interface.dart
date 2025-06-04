@@ -66,7 +66,7 @@ class _ProposeProjectPageState extends State<ProposeProjectPage> {
               surface: _backgroundColor, // Dark grey for calendar background
               onSurface: _textColor, // White text on background
             ),
-            dialogBackgroundColor: _backgroundColor,
+            dialogTheme: DialogThemeData(backgroundColor: _backgroundColor),
           ),
           child: child!,
         );
@@ -98,7 +98,7 @@ class _ProposeProjectPageState extends State<ProposeProjectPage> {
               surface: _backgroundColor,
               onSurface: _textColor,
             ),
-            dialogBackgroundColor: _backgroundColor,
+            dialogTheme: DialogThemeData(backgroundColor: _backgroundColor),
           ),
           child: child!,
         );
@@ -135,7 +135,7 @@ class _ProposeProjectPageState extends State<ProposeProjectPage> {
         description: _descriptionController.text.trim(),
         active: false,
         startDate: _startDate,
-        userId: user.id,
+        user: user,
         endDate: _endDate,
       );
 
@@ -251,18 +251,6 @@ class _ProposeProjectPageState extends State<ProposeProjectPage> {
                             (value == null || value.isEmpty)
                                 ? 'Campo obligatorio'
                                 : null,
-                  ),
-                  const SizedBox(height: 16),
-
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 8,
-                    ),
-                    decoration: BoxDecoration(
-                      color: _textFieldFillColor,
-                      borderRadius: BorderRadius.circular(12.0),
-                    ),
                   ),
                   const SizedBox(height: 16),
                   Container(

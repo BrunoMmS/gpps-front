@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../models/project.dart';
+import '../models/project_complete.dart';
 
 class ProjectHandler {
   final String baseUrl;
@@ -17,37 +18,38 @@ class ProjectHandler {
         'description': project.description,
         'active': project.active,
         'start_date': project.startDate.toIso8601String(),
-        'user_id': project.userId,
+        'user_id': project.user.id,
         'end_date': project.endDate?.toIso8601String(),
       }),
     );
 
     if (response.statusCode == 200) {
-      return Project.fromJson(jsonDecode(response.body));
+      final Map<String, dynamic> json = jsonDecode(response.body);
+      return await getProjectWithUser(json['id']);
     } else {
       throw Exception('Error creando proyecto: ${response.body}');
     }
   }
 
   Future<List<Project>> listProjects() async {
-    final url = Uri.parse('$baseUrl/projects/');
+    final url = Uri.parse('$baseUrl/projects/all/WithUser');
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
-      final List<dynamic> jsonList = jsonDecode(response.body);
-      return jsonList.map((json) => Project.fromJson(json)).toList();
+      final List jsonList = jsonDecode(response.body);
+      return jsonList.map<Project>((json) => Project.fromJson(json)).toList();
     } else {
       throw Exception('Error listando proyectos: ${response.body}');
     }
   }
 
   Future<List<Project>> listProjectsByUser(int userId) async {
-    final url = Uri.parse('$baseUrl/projects/$userId');
+    final url = Uri.parse('$baseUrl/projects/getProjectsWithUser/$userId');
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
-      final List<dynamic> jsonList = jsonDecode(response.body);
-      return jsonList.map((json) => Project.fromJson(json)).toList();
+      final List jsonList = jsonDecode(response.body);
+      return jsonList.map<Project>((json) => Project.fromJson(json)).toList();
     } else {
       throw Exception('Error listando proyectos por usuario: ${response.body}');
     }
@@ -75,31 +77,67 @@ class ProjectHandler {
   }
 
   Future<List<Project>> fetchInactiveProjects() async {
-    final url = Uri.parse('$baseUrl/projects/');
+    final url = Uri.parse('$baseUrl/projects/all/WithUser');
     final response = await http.get(url);
 
     if (response.statusCode == 200) {
-      final List<dynamic> jsonList = json.decode(response.body);
+      final List jsonList = jsonDecode(response.body);
       return jsonList
-          .map((json) => Project.fromJson(json))
+          .map<Project>((json) => Project.fromJson(json))
           .where((project) => !project.active)
           .toList();
-    } else {
-      throw Exception('Error al obtener proyectos inactivos');
+    }
+    return [];
+  }
+
+  Future<void> approveProject(int projectId) async {
+    final url = Uri.parse('$baseUrl/projects/approve/$projectId');
+    final response = await http.put(url);
+
+    if (response.statusCode != 200) {
+      throw Exception('Error al aprobar el proyecto: ${response.body}');
     }
   }
 
-  approveProject(int projectId) {
-    final url = Uri.parse('$baseUrl/projects/approve/$projectId');
-    return http
-        .put(url)
-        .then((response) {
-          if (response.statusCode != 200) {
-            throw Exception('Error al aprobar el proyecto: ${response.body}');
-          }
-        })
-        .catchError((error) {
-          throw Exception('Error al aprobar el proyecto: $error');
-        });
+  Future<Project> getProjectWithUser(int projectId) async {
+    final url = Uri.parse(
+      '$baseUrl/projects/project/getProjectWithUser/$projectId',
+    );
+    final response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      return Project.fromJson(jsonDecode(response.body));
+    } else {
+      throw Exception(
+        'Error obteniendo proyecto con usuario: ${response.body}',
+      );
+    }
+  }
+
+  Future<ProjectComplete> getProjectComplete(int projectId) async {
+    final url = Uri.parse('$baseUrl/projects/projects/$projectId/complete');
+    final response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      return ProjectComplete.fromJson(jsonDecode(response.body));
+    } else {
+      throw Exception('Error obteniendo proyecto completo: ${response.body}');
+    }
+  }
+
+  Future<void> createWorkplan({
+    required int projectId,
+    required String name,
+  }) async {
+    final url = Uri.parse('$baseUrl/projects/workplans/create');
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'project_id': projectId, 'name': name}),
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('Error creando plan de trabajo: ${response.body}');
+    }
   }
 }

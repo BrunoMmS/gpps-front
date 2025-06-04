@@ -1,11 +1,13 @@
+import 'user.dart';
+
 class Project {
   final int id;
   final String title;
   final String description;
   final bool active;
   final DateTime startDate;
-  final int userId;
   final DateTime? endDate;
+  final User user;
 
   Project({
     required this.id,
@@ -13,22 +15,20 @@ class Project {
     required this.description,
     required this.active,
     required this.startDate,
-    required this.userId,
     this.endDate,
+    required this.user,
   });
 
   factory Project.fromJson(Map<String, dynamic> json) {
     return Project(
-      id: json['id'] as int,
-      title: json['title'] as String,
-      description: json['description'] as String,
-      active: json['active'] as bool,
-      startDate: DateTime.parse(json['start_date'] as String),
-      userId: json['user_id'] as int,
+      id: json['id'],
+      title: json['title'],
+      description: json['description'],
+      active: json['active'],
+      startDate: DateTime.parse(json['start_date']),
       endDate:
-          json['end_date'] != null
-              ? DateTime.parse(json['end_date'] as String)
-              : null,
+          json['end_date'] != null ? DateTime.parse(json['end_date']) : null,
+      user: User.fromJson(json['user']),
     );
   }
 
@@ -38,7 +38,7 @@ class Project {
       'description': description,
       'active': active,
       'start_date': startDate.toIso8601String(),
-      'user_id': userId,
+      'user_id': user.id,
     };
 
     if (endDate != null) {

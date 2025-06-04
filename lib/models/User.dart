@@ -38,19 +38,13 @@ class UserCreate extends User {
   final String password;
 
   UserCreate({
-    required int id,
-    required String username,
-    required String lastname,
-    required String email,
-    required String role,
+    required super.id,
+    required super.username,
+    required super.lastname,
+    required super.email,
+    required super.role,
     required this.password,
-  }) : super(
-         id: id,
-         username: username,
-         lastname: lastname,
-         email: email,
-         role: role,
-       );
+  });
 
   @override
   Map<String, dynamic> toJson() {

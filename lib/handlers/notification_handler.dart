@@ -9,13 +9,11 @@ class NotificationHandler {
 
   static Future<List<Notification>> fetchNotifications(int userId) async {
     final response = await http.get(Uri.parse("$_baseUrl/$userId"));
-    print(response.body);
     if (response.statusCode == 200) {
       final List<dynamic> data = json.decode(response.body);
       return data.map((json) => Notification.fromJson(json)).toList();
-    } else {
-      throw Exception('Error al obtener notificaciones');
     }
+    return [];
   }
 
   static Future<void> markAsRead(int notifId) async {

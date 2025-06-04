@@ -31,7 +31,11 @@ class _NotificationButtonState extends State<NotificationButton> {
         notifications = fetched;
         hasUnread = fetched.any((n) => !n.read);
       });
-    } catch (e) {}
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error al cargar notificaciones: $e')),
+      );
+    }
   }
 
   void _showNotificationDialog() {

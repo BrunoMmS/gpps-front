@@ -3,7 +3,7 @@ import 'package:gpps_front/interfaces/Unauthorized.dart';
 import 'package:gpps_front/interfaces/dashboards/dashboard_admin_interface.dart';
 import 'package:gpps_front/interfaces/dashboards/dashboard_student_interface.dart';
 import 'package:gpps_front/interfaces/login_interface.dart';
-import 'package:gpps_front/interfaces/project/project_detail_interface.dart';
+import 'package:gpps_front/interfaces/project/project_detail_student_interface.dart';
 import 'package:gpps_front/interfaces/project/propose_project_interface.dart';
 import 'package:gpps_front/interfaces/project/propose_projects_admin.dart';
 import 'package:gpps_front/interfaces/register_interface.dart';
@@ -51,11 +51,13 @@ class MyApp extends StatelessWidget {
               allowedRoles: [Rol.student.backendValue, Rol.admin.backendValue],
               child: const ProposeProjectPage(),
             ),
-        '/projectDetails':
-            (context) => RoleGuard(
-              allowedRoles: [Rol.student.backendValue, Rol.admin.backendValue],
-              child: ProjectDetailPage(),
-            ),
+        '/projectDetails': (context) {
+          final args = ModalRoute.of(context)!.settings.arguments as int;
+          return RoleGuard(
+            allowedRoles: [Rol.student.backendValue, Rol.admin.backendValue],
+            child: ProjectDetailPage(projectId: args),
+          );
+        },
         '/proposeProjectsAdmin':
             (context) => RoleGuard(
               allowedRoles: [Rol.admin.backendValue, Rol.exEntity.backendValue],

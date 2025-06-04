@@ -1,14 +1,20 @@
 import 'package:flutter/material.dart';
+
+// Components
 import 'package:gpps_front/components/logout_button.dart';
 import 'package:gpps_front/components/dashboard_button.dart';
 import 'package:gpps_front/components/welcome_banner.dart';
+import 'package:gpps_front/components/notification_button.dart';
+import 'package:gpps_front/components/project_row.dart';
+
+// Models
 import 'package:gpps_front/models/rol_enum.dart';
 import 'package:gpps_front/models/user.dart';
 import 'package:gpps_front/models/user_session.dart';
-import '../../components/notification_button.dart';
-import '../../models/project.dart';
-import '../../components/project_row.dart';
-import '../../handlers/project_handler.dart';
+import 'package:gpps_front/models/project.dart';
+
+// Handlers
+import 'package:gpps_front/handlers/project_handler.dart';
 
 class DashboardStudent extends StatefulWidget {
   const DashboardStudent({super.key});
@@ -22,6 +28,11 @@ class _DashboardStudentState extends State<DashboardStudent> {
   List<Project> projects = [];
   late ProjectHandler projectHandler;
 
+  final backgroundColor = const Color(0xFF1C1F26);
+  final sidebarColor = const Color(0xFF2A2F3A);
+  final appBarColor = const Color(0xFF1A1D24);
+  final textColor = Colors.white;
+
   @override
   void initState() {
     super.initState();
@@ -34,153 +45,163 @@ class _DashboardStudentState extends State<DashboardStudent> {
     setState(() {
       user = UserSession().user;
     });
+
     if (user != null) {
       try {
         final userProjects = await projectHandler.listProjectsByUser(user!.id);
         setState(() {
           projects = userProjects;
         });
-      } catch (e) {}
+      } catch (e) {
+        print("Error al cargar proyectos: $e");
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final backgroundColor = const Color(0xFF1C1F26);
-    final sidebarColor = const Color(0xFF2A2F3A);
-    final appBarColor = const Color(0xFF1A1D24);
-    final textColor = Colors.white;
-
     return Scaffold(
+      backgroundColor: backgroundColor,
       appBar: AppBar(
         title: const Text("Panel del Estudiante"),
         backgroundColor: appBarColor,
         foregroundColor: textColor,
         centerTitle: true,
         elevation: 4,
-        actions: [
+        actions: const [
           NotificationButton(),
           LogoutButton(),
-          const SizedBox(width: 60),
+          SizedBox(width: 20),
         ],
       ),
-      backgroundColor: backgroundColor,
       body: Center(
         child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 1100),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Panel lateral estilizado
-              Container(
-                width: 300,
-                margin: const EdgeInsets.only(top: 24),
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: sidebarColor,
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.3),
-                      blurRadius: 8,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Tus Proyectos',
-                      style: TextStyle(
-                        color: textColor,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    Expanded(
-                      child:
-                          projects.isEmpty
-                              ? Center(
-                                child: Text(
-                                  user == null
-                                      ? "Cargando proyectos..."
-                                      : "Aún no has creado proyectos.",
-                                  style: TextStyle(color: Colors.white60),
-                                ),
-                              )
-                              : ListView.separated(
-                                itemCount: projects.length,
-                                separatorBuilder:
-                                    (_, __) => const SizedBox(height: 12),
-                                itemBuilder: (context, index) {
-                                  final project = projects[index];
-                                  return Container(
-                                    decoration: BoxDecoration(
-                                      color: Colors.blueGrey[700],
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    child: ProjectRow(project: project),
-                                  );
-                                },
-                              ),
-                    ),
-                  ],
-                ),
-              ),
-
-              const SizedBox(width: 24),
-
-              // Panel principal
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: 32),
-                    if (user != null)
-                      WelcomeBanner(
-                        name: user!.username,
-                        role:
-                            RolExtension.fromBackendValue(
-                              user!.role,
-                            )?.displayName ??
-                            user!.role,
-                      ),
-                    const SizedBox(height: 16),
-                    Expanded(
-                      child: GridView.count(
-                        padding: const EdgeInsets.all(24),
-                        crossAxisCount: 2,
-                        mainAxisSpacing: 24,
-                        crossAxisSpacing: 24,
-                        children: [
-                          DashboardButton(
-                            icon: Icons.assignment_add,
-                            label: "Inscribirse",
-                            onTap: () {},
-                          ),
-                          DashboardButton(
-                            icon: Icons.lightbulb_outline,
-                            label: "Proponer Proyecto",
-                            onTap: () {
-                              Navigator.pushNamed(context, '/proposeProject');
-                            },
-                          ),
-                          DashboardButton(
-                            icon: Icons.track_changes,
-                            label: "Seguimiento PPS",
-                            onTap: () {},
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
+          constraints: const BoxConstraints(maxWidth: 1300),
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildSidebar(),
+                const SizedBox(width: 24),
+                _buildMainContent(),
+              ],
+            ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildSidebar() {
+    return Container(
+      width: 360,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: sidebarColor,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.25),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Tus Proyectos',
+            style: TextStyle(
+              fontSize: 20,
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Expanded(
+            child:
+                projects.isEmpty
+                    ? Center(
+                      child: Text(
+                        user == null
+                            ? "Cargando proyectos..."
+                            : "Aún no has creado proyectos.",
+                        style: const TextStyle(color: Colors.white60),
+                        textAlign: TextAlign.center,
+                      ),
+                    )
+                    : ListView.separated(
+                      itemCount: projects.length,
+                      separatorBuilder: (_, __) => const SizedBox(height: 12),
+                      itemBuilder: (context, index) {
+                        return ProjectRow(project: projects[index]);
+                      },
+                    ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMainContent() {
+    return Expanded(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (user != null)
+            WelcomeBanner(
+              name: user!.username,
+              role:
+                  RolExtension.fromBackendValue(user!.role)?.displayName ??
+                  user!.role,
+            ),
+          const SizedBox(height: 20),
+          const Text(
+            "Acciones disponibles",
+            style: TextStyle(
+              fontSize: 22,
+              color: Colors.white70,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Expanded(
+            child: GridView(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                crossAxisSpacing: 20,
+                mainAxisSpacing: 20,
+                childAspectRatio: 1.6,
+              ),
+              children: [
+                DashboardButton(
+                  icon: Icons.assignment_add,
+                  label: "Inscribirse",
+                  onTap: () {
+                    // lógica para inscripción
+                  },
+                ),
+                DashboardButton(
+                  icon: Icons.lightbulb_outline,
+                  label: "Proponer Proyecto",
+                  onTap: () {
+                    Navigator.pushNamed(context, '/proposeProject');
+                  },
+                ),
+                DashboardButton(
+                  icon: Icons.track_changes,
+                  label: "Seguimiento PPS",
+                  onTap: () {
+                    // lógica para seguimiento PPS
+                  },
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
