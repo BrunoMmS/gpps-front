@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gpps_front/components/agreement_components/CreateAgreementPage.dart';
 import 'package:gpps_front/interfaces/Unauthorized.dart';
 import 'package:gpps_front/interfaces/dashboards/dashboard_admin_interface.dart';
 import 'package:gpps_front/interfaces/dashboards/dashboard_student_interface.dart';
@@ -9,6 +10,9 @@ import 'package:gpps_front/interfaces/project/propose_projects_admin.dart';
 import 'package:gpps_front/interfaces/register_interface.dart';
 import 'package:gpps_front/models/rol_enum.dart';
 import 'package:gpps_front/role_guard.dart';
+
+import 'interfaces/dashboards/dashboard_entity_external_interface.dart';
+import 'interfaces/studentProject/project_assign.dart';
 
 void main() {
   runApp(const MyApp());
@@ -32,6 +36,14 @@ class MyApp extends StatelessWidget {
       routes: {
         '/register': (context) => const RegisterInterface(),
         '/login': (context) => const LoginInterface(),
+        '/dashboardExternalEntity':
+            (context) => RoleGuard(
+              allowedRoles: [
+                Rol.exEntity.backendValue,
+                Rol.student.backendValue,
+              ],
+              child: const DashboardExternal(),
+            ),
         '/dashboardStudent':
             (context) => RoleGuard(
               allowedRoles: [Rol.student.backendValue],
@@ -54,7 +66,11 @@ class MyApp extends StatelessWidget {
         '/projectDetails': (context) {
           final args = ModalRoute.of(context)!.settings.arguments as int;
           return RoleGuard(
-            allowedRoles: [Rol.student.backendValue, Rol.admin.backendValue],
+            allowedRoles: [
+              Rol.student.backendValue,
+              Rol.admin.backendValue,
+              Rol.exEntity.backendValue,
+            ],
             child: ProjectDetailPage(projectId: args),
           );
         },
@@ -63,11 +79,27 @@ class MyApp extends StatelessWidget {
               allowedRoles: [Rol.admin.backendValue, Rol.exEntity.backendValue],
               child: const InactiveProjectsPage(),
             ),
+        '/ViewProjectsAssigns':
+            (context) => RoleGuard(
+              allowedRoles: [
+                Rol.admin.backendValue,
+                Rol.exEntity.backendValue,
+                Rol.student.backendValue,
+              ],
+              child: const ProjectAssign(),
+            ),
+        '/ViewProjectAssing':
+            (context) => RoleGuard(
+              allowedRoles: [Rol.student.backendValue],
+              child: const ProjectAssign(),
+            ),
+        '/createAgreement': (context) {
+          return RoleGuard(
+            allowedRoles: [Rol.exEntity.backendValue, Rol.student.backendValue],
+            child: CreateAgreementPage(),
+          );
+        },
       },
     );
   }
-}
-
-class ProjectDetailsPage {
-  const ProjectDetailsPage();
 }

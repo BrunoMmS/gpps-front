@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:gpps_front/components/files_panel.dart';
 import 'package:gpps_front/handlers/project_handler.dart';
 import 'package:gpps_front/models/project_complete.dart';
+import 'package:gpps_front/models/rol_enum.dart';
 
 import '../../components/workplan_components/add_workplan_dialog.dart';
 import '../../components/workplan_components/workplan_panel.dart';
@@ -25,6 +27,47 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
     _projectFuture = ProjectHandler(
       baseUrl: "http://127.0.0.1:8000",
     ).getProjectComplete(widget.projectId);
+  }
+
+  void aproveProject() async {
+    final user = UserSession().user;
+
+    if (user == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Error: usuario no autenticado"),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    try {
+      await ProjectHandler(
+        baseUrl: "http://localhost:8000",
+      ).approveProject(widget.projectId);
+
+      setState(() {
+        _projectFuture = ProjectHandler(
+          baseUrl: "http://127.0.0.1:8000",
+        ).getProjectComplete(widget.projectId);
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Proyecto aprobado exitosamente"),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Error al aprobar el proyecto: $e"),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
   }
 
   void _createWorkplan() {
@@ -106,6 +149,14 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
 
           _project = snapshot.data!;
           final workplan = _project!.workplan;
+          final currentUser = UserSession().user;
+
+          final isOwner =
+              currentUser != null && _project!.user.id == currentUser.id;
+          final isAdminOrEntity =
+              currentUser != null &&
+              (currentUser.role == Rol.admin.backendValue ||
+                  currentUser.role == Rol.exEntity.backendValue);
 
           return Padding(
             padding: const EdgeInsets.all(16.0),
@@ -160,8 +211,21 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
                   ],
                 ),
                 const SizedBox(height: 20),
-
-                if (workplan == null) ...[
+                if (isAdminOrEntity && !_project!.isConfirmed) ...[
+                  Center(
+                    child: ElevatedButton.icon(
+                      icon: const Icon(Icons.check_circle_outline),
+                      label: const Text("Aprobar proyecto"),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.green,
+                        foregroundColor: Colors.white,
+                      ),
+                      onPressed: aproveProject,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                ],
+                if (isOwner && workplan == null) ...[
                   Center(
                     child: ElevatedButton.icon(
                       icon: const Icon(Icons.add_chart),
@@ -169,9 +233,22 @@ class _ProjectDetailPageState extends State<ProjectDetailPage> {
                       onPressed: _createWorkplan,
                     ),
                   ),
+                ] else if (workplan != null) ...[
+                  const SizedBox(height: 20),
+                  Expanded(
+                    child: WorkplanPanel(
+                      workplan: workplan,
+                      idUserCreator: _project!.user.id,
+                    ),
+                  ),
                 ] else ...[
-                  Expanded(child: WorkplanPanel(workplan: workplan)),
+                  const SizedBox(height: 20),
+                  const Text(
+                    "No hay plan de trabajo disponible",
+                    style: TextStyle(color: Colors.white70),
+                  ),
                 ],
+                Row(children: [FilePanel(idUserCreator: _project!.user.id)]),
               ],
             ),
           );

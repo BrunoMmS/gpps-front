@@ -1,7 +1,9 @@
 import 'dart:convert';
+import 'package:file_picker/file_picker.dart';
 import 'package:http/http.dart' as http;
 import '../models/project.dart';
 import '../models/project_complete.dart';
+import 'package:http_parser/http_parser.dart';
 
 class ProjectHandler {
   final String baseUrl;
@@ -60,16 +62,12 @@ class ProjectHandler {
     required int projectId,
     required int userToAssign,
   }) async {
-    final url = Uri.parse('$baseUrl/projects/assignUserToProject');
-    final response = await http.post(
-      url,
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        'user_id': userId,
-        'project_id': projectId,
-        'user_to_assign': userToAssign,
-      }),
+    final url = Uri.parse(
+      '$baseUrl/projects/assignUserToProject'
+      '?user_id=$userId&project_id=$projectId&user_to_assign=$userToAssign',
     );
+
+    final response = await http.post(url); // No mandes body, ni headers
 
     if (response.statusCode != 200) {
       throw Exception('Error asignando usuario a proyecto: ${response.body}');
@@ -138,6 +136,39 @@ class ProjectHandler {
 
     if (response.statusCode != 200) {
       throw Exception('Error creando plan de trabajo: ${response.body}');
+    }
+  }
+
+  Future<void> uploadFile(PlatformFile file) async {
+    final url = Uri.parse('$baseUrl/upload/');
+    final request = http.MultipartRequest('POST', url);
+
+    if (file.bytes != null) {
+      request.files.add(
+        http.MultipartFile.fromBytes(
+          'files',
+          file.bytes!,
+          filename: file.name,
+          contentType: MediaType('application', 'octet-stream'),
+        ),
+      );
+    } else if (file.path != null) {
+      request.files.add(
+        await http.MultipartFile.fromPath(
+          'files',
+          file.path!,
+          contentType: MediaType('application', 'octet-stream'),
+        ),
+      );
+    } else {
+      throw Exception("No se pudo leer el archivo");
+    }
+
+    final response = await request.send();
+
+    if (response.statusCode != 200) {
+      final respStr = await response.stream.bytesToString();
+      throw Exception('Error subiendo archivo: $respStr');
     }
   }
 }

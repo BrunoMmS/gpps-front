@@ -7,11 +7,17 @@ import '../activity_components/add_activity_dialog.dart';
 import '../task_components/task_panel.dart';
 
 import '../../handlers/activity_handler.dart';
+import '../../models/user_session.dart';
 
 class WorkplanPanel extends StatefulWidget {
   final Workplan workplan;
+  final int idUserCreator;
 
-  const WorkplanPanel({super.key, required this.workplan});
+  const WorkplanPanel({
+    super.key,
+    required this.workplan,
+    required this.idUserCreator,
+  });
 
   @override
   State<WorkplanPanel> createState() => _WorkplanPanelState();
@@ -34,7 +40,6 @@ class _WorkplanPanelState extends State<WorkplanPanel> {
         selectedActivity = createdActivity;
       });
     } catch (e) {
-      // Maneja error (ejemplo: snackbar)
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text('Error al crear actividad: $e')));
@@ -65,16 +70,17 @@ class _WorkplanPanelState extends State<WorkplanPanel> {
                     ),
                   ),
                   const Spacer(),
-                  IconButton(
-                    icon: const Icon(Icons.add, color: Colors.white),
-                    onPressed: () async {
-                      final newActivity = await showDialog<ActivityCreate>(
-                        context: context,
-                        builder: (_) => const AddActivityDialog(),
-                      );
-                      if (newActivity != null) _addActivity(newActivity);
-                    },
-                  ),
+                  if (widget.idUserCreator == UserSession().user!.id)
+                    IconButton(
+                      icon: const Icon(Icons.add, color: Colors.white),
+                      onPressed: () async {
+                        final newActivity = await showDialog<ActivityCreate>(
+                          context: context,
+                          builder: (_) => const AddActivityDialog(),
+                        );
+                        if (newActivity != null) _addActivity(newActivity);
+                      },
+                    ),
                 ],
               ),
               Expanded(
@@ -104,6 +110,7 @@ class _WorkplanPanelState extends State<WorkplanPanel> {
                         selectedActivity!.tasks.add(task);
                       });
                     },
+                    idUserCreator: widget.idUserCreator,
                   )
                   : const Center(
                     child: Text(

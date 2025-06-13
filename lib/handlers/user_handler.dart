@@ -62,4 +62,20 @@ class UserHandler {
       );
     }
   }
+
+  Future<List<User>> getAllUsers() async {
+    final url = Uri.parse('$_baseUrl/');
+
+    final response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      final List<dynamic> responseData = jsonDecode(response.body);
+      return responseData.map((user) => User.fromJson(user)).toList();
+    } else {
+      final error = jsonDecode(response.body);
+      throw Exception(
+        error['detail'] ?? 'Error desconocido al obtener usuarios',
+      );
+    }
+  }
 }

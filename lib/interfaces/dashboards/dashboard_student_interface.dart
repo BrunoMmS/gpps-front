@@ -181,6 +181,7 @@ class _DashboardStudentState extends State<DashboardStudent> {
                   icon: Icons.assignment_add,
                   label: "Inscribirse",
                   onTap: () {
+                    Navigator.pushNamed(context, '/ViewProjectsAssigns');
                     // lógica para inscripción
                   },
                 ),

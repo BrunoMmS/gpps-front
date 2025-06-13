@@ -1,0 +1,1 @@
+enum AgreementStatus { PENDING, APPROVED, REJECTED, EXPIRED }

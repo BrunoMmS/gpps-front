@@ -16,14 +16,9 @@ class Task {
 
 class TaskCreate {
   final String description;
+  final bool done;
 
-  TaskCreate({required this.description});
+  TaskCreate({required this.description, this.done = false});
 
-  Map<String, dynamic> toJson() {
-    return {'description': description};
-  }
-
-  factory TaskCreate.fromJson(Map<String, dynamic> json) {
-    return TaskCreate(description: json['description']);
-  }
+  Map<String, dynamic> toJson() => {'description': description, 'done': done};
 }

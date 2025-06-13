@@ -49,7 +49,7 @@ class _LoginInterfaceState extends State<LoginInterface> {
           Rol.student: '/dashboardStudent',
           Rol.teacher: '/dashboardTutorUnrn',
           Rol.teacher2: '/dashboardTutorExterno',
-          Rol.exEntity: '/dashboardEntidadExterna',
+          Rol.exEntity: '/dashboardExternalEntity',
         };
 
         final route = roleRoutes[rolEnum];

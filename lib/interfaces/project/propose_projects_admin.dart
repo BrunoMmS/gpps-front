@@ -32,22 +32,6 @@ class _InactiveProjectsPageState extends State<InactiveProjectsPage> {
     });
   }
 
-  Future<void> approveProject(int projectId) async {
-    try {
-      await ProjectHandler(
-        baseUrl: 'http://localhost:8000',
-      ).approveProject(projectId);
-      setState(() => _fetchProjects());
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Proyecto aprobado exitosamente')),
-      );
-    } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Error al aprobar: $e')));
-    }
-  }
-
   Widget _buildProjectCard(Project project) {
     return Card(
       color: const Color(0xFF1E2A38),
@@ -126,24 +110,29 @@ class _InactiveProjectsPageState extends State<InactiveProjectsPage> {
                 ),
               ],
             ),
-
             const SizedBox(height: 16),
-
-            // Botón de aprobar
             Align(
               alignment: Alignment.centerRight,
               child: ElevatedButton.icon(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green.shade600,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                onPressed: () => approveProject(project.id),
-                icon: const Icon(Icons.check_circle, color: Colors.white),
+                onPressed: () {
+                  Navigator.pushNamed(
+                    context,
+                    '/projectDetails',
+                    arguments: project.id,
+                  );
+                },
+                icon: const Icon(
+                  Icons.remove_red_eye_sharp,
+                  color: Colors.white,
+                ),
                 label: const Text(
-                  'Aprobar',
-                  style: TextStyle(color: Colors.white),
+                  'Ver Proyecto',
+                  style: TextStyle(color: Color.fromARGB(255, 30, 30, 30)),
                 ),
               ),
             ),

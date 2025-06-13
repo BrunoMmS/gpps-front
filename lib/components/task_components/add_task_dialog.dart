@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:gpps_front/models/task.dart';
+
+import '../../models/task.dart';
 
 class AddTaskDialog extends StatefulWidget {
   const AddTaskDialog({super.key});
@@ -10,14 +11,33 @@ class AddTaskDialog extends StatefulWidget {
 
 class _AddTaskDialogState extends State<AddTaskDialog> {
   final TextEditingController descCtrl = TextEditingController();
+  bool done = false;
 
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
       title: const Text("Nueva Tarea"),
-      content: TextField(
-        controller: descCtrl,
-        decoration: const InputDecoration(labelText: "Descripción"),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          TextField(
+            controller: descCtrl,
+            decoration: const InputDecoration(labelText: "Descripción"),
+          ),
+          Row(
+            children: [
+              const Text("Completada"),
+              Checkbox(
+                value: done,
+                onChanged: (value) {
+                  setState(() {
+                    done = value ?? false;
+                  });
+                },
+              ),
+            ],
+          ),
+        ],
       ),
       actions: [
         TextButton(
@@ -27,10 +47,11 @@ class _AddTaskDialogState extends State<AddTaskDialog> {
         ElevatedButton(
           child: const Text("Agregar"),
           onPressed: () {
-            final task = Task(
-              id: DateTime.now().millisecondsSinceEpoch,
-              description: descCtrl.text,
-              done: false,
+            if (descCtrl.text.trim().isEmpty) return;
+
+            final task = TaskCreate(
+              description: descCtrl.text.trim(),
+              done: done,
             );
             Navigator.pop(context, task);
           },
