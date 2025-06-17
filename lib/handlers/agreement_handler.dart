@@ -26,4 +26,9 @@ class AgreementHandler {
       throw Exception('Error al crear el acuerdo: ${response.body}');
     }
   }
+  asldpmalsdmpasdma
+  kndaskpdasn
+  knadpsnkasd
+  amdsñmas
+  asdolmol
 }
