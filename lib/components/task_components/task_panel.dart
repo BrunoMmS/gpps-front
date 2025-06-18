@@ -67,7 +67,7 @@ class TaskPanel extends StatelessWidget {
             itemCount: activity.tasks.length,
             itemBuilder: (context, index) {
               final task = activity.tasks[index];
-              return ListTile(
+                return ListTile(
                 leading: Icon(
                   task.done ? Icons.check_circle : Icons.radio_button_unchecked,
                   color: task.done ? Colors.greenAccent : Colors.white54,
@@ -76,7 +76,24 @@ class TaskPanel extends StatelessWidget {
                   task.description,
                   style: const TextStyle(color: Colors.white),
                 ),
-              );
+                trailing: !task.done
+                  ? IconButton(
+                    icon: const Icon(Icons.check, color: Colors.white),
+                    tooltip: 'Marcar como hecha',
+                    onPressed: () async {
+                      try {
+                      await taskHandler.setDoneTask(
+                        task.id,
+                      );
+                      } catch (e) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Error al marcar tarea como hecha: $e')),
+                      );
+                      }
+                    },
+                    )
+                  : null,
+                );
             },
           ),
         ),
