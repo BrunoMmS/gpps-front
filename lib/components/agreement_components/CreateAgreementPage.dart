@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:gpps_front/handlers/agreement_handler.dart';
 import 'package:gpps_front/handlers/user_handler.dart';
 import 'package:gpps_front/models/agreement.dart';
+import 'package:gpps_front/models/rol_enum.dart';
 import 'package:gpps_front/models/user.dart';
 import 'package:gpps_front/models/user_session.dart';
 
@@ -30,8 +31,15 @@ class _CreateAgreementPageState extends State<CreateAgreementPage> {
 
   Future<void> _loadUsers() async {
     try {
-      final users = await UserHandler().getAllUsers();
-      setState(() => _users = users);
+      final allUsers = await UserHandler().getAllUsers();
+      setState(() {
+        // Filter users to include only 'entidad externa' and 'administrador' roles
+        _users = allUsers
+            .where((user) =>
+                user.role == Rol.exEntity.backendValue ||
+                user.role == Rol.admin.backendValue)
+            .toList();
+      });
     } catch (e) {
       setState(() {
         _message = 'Error al cargar usuarios: $e';
@@ -104,6 +112,9 @@ class _CreateAgreementPageState extends State<CreateAgreementPage> {
           _selectedUser = null;
           _startDate = null;
           _endDate = null;
+          // You might want to reload users here if your system allows dynamic role changes
+          // or if you want to ensure the list is fresh after an action.
+          // _loadUsers();
         });
       } catch (e) {
         setState(() {
@@ -117,13 +128,14 @@ class _CreateAgreementPageState extends State<CreateAgreementPage> {
 
   @override
   Widget build(BuildContext context) {
-    final filteredUsers =
-        _users.where((u) {
-          final searchLower = _searchQuery.toLowerCase();
-          return u.username.toLowerCase().contains(searchLower) ||
-              u.lastname.toLowerCase().contains(searchLower) ||
-              u.role.toLowerCase().contains(searchLower);
-        }).toList();
+    // The existing filteredUsers logic already handles the search query,
+    // so we just ensure _users only contains the desired roles from _loadUsers.
+    final filteredUsers = _users.where((u) {
+      final searchLower = _searchQuery.toLowerCase();
+      return u.username.toLowerCase().contains(searchLower) ||
+          u.lastname.toLowerCase().contains(searchLower) ||
+          u.role.toLowerCase().contains(searchLower);
+    }).toList();
 
     return Scaffold(
       appBar: AppBar(
@@ -162,18 +174,17 @@ class _CreateAgreementPageState extends State<CreateAgreementPage> {
                 value: _selectedUser,
                 dropdownColor: Colors.grey[900],
                 style: const TextStyle(color: Colors.white),
-                items:
-                    filteredUsers
-                        .map(
-                          (user) => DropdownMenuItem<User>(
-                            value: user,
-                            child: Text(
-                              '${user.username} ${user.lastname} (${user.role})',
-                              style: const TextStyle(color: Colors.white),
-                            ),
-                          ),
-                        )
-                        .toList(),
+                items: filteredUsers
+                    .map(
+                      (user) => DropdownMenuItem<User>(
+                        value: user,
+                        child: Text(
+                          '${user.username} ${user.lastname} (${user.role})',
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                      ),
+                    )
+                    .toList(),
                 onChanged: (user) => setState(() => _selectedUser = user),
                 decoration: InputDecoration(
                   labelText: 'Seleccionar Usuario',
@@ -184,9 +195,8 @@ class _CreateAgreementPageState extends State<CreateAgreementPage> {
                     borderRadius: BorderRadius.circular(8),
                   ),
                 ),
-                validator:
-                    (user) =>
-                        user == null ? 'Debe seleccionar un usuario' : null,
+                validator: (user) =>
+                    user == null ? 'Debe seleccionar un usuario' : null,
               ),
               const SizedBox(height: 24),
               Row(
@@ -243,10 +253,9 @@ class _CreateAgreementPageState extends State<CreateAgreementPage> {
                   child: Text(
                     _message!,
                     style: TextStyle(
-                      color:
-                          _message!.contains('Error')
-                              ? Colors.red[300]
-                              : Colors.greenAccent,
+                      color: _message!.contains('Error')
+                          ? Colors.red[300]
+                          : Colors.greenAccent,
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                     ),

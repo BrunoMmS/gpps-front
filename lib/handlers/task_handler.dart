@@ -28,9 +28,9 @@ class TaskHandler {
   Future<void> setDoneTask(
     int taskId,
   ) async {
-    final url = Uri.parse('$baseUrl/activities/task/$taskId');
+    final url = Uri.parse('$baseUrl/activity/activities/task/$taskId');
 
-    final response = await http.patch(
+    final response = await http.put(
       url,
       headers: {'Content-Type': 'application/json'},
     );
