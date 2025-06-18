@@ -21,12 +21,12 @@ class _AddtutorState extends State<Addtutor> {
   // Variables de estado para los datos de las listas desplegables
   List<Agreement> _agreements = [];
   Agreement? _selectedAgreement;
-  List<User> _tutors = []; // Ahora 'tutors' representa a todos los usuarios/tutores
-  User? _selectedTutor;
+  List<User> _assignableUsers = []; // Renombrado de _tutors a _assignableUsers
+  User? _selectedAssignableUser; // Renombrado de _selectedTutor
 
   // Variables de estado para el indicador de carga y el mensaje de visualización
   bool _isLoading = false; // Para la operación de asignación
-  bool _isDataLoading = true; // Para la carga inicial de convenios y tutores
+  bool _isDataLoading = true; // Para la carga inicial de convenios y usuarios
   String? _message; // Para mostrar mensajes de éxito o error
   String? _dataErrorMessage; // Para errores al cargar los datos iniciales
 
@@ -44,7 +44,7 @@ class _AddtutorState extends State<Addtutor> {
   @override
   void initState() {
     super.initState();
-    _fetchInitialData(); // Cargar convenios y tutores al iniciar
+    _fetchInitialData(); // Cargar convenios y usuarios asignables al iniciar
     _userSelfId = UserSession().user?.id; // Obtener ID del usuario de la sesión
 
     if (_userSelfId == null) {
@@ -53,7 +53,7 @@ class _AddtutorState extends State<Addtutor> {
     }
   }
 
-  // Función para cargar los datos iniciales (convenios y tutores)
+  // Función para cargar los datos iniciales (convenios y usuarios asignables)
   Future<void> _fetchInitialData() async {
     setState(() {
       _isDataLoading = true;
@@ -64,12 +64,15 @@ class _AddtutorState extends State<Addtutor> {
       final fetchedAgreements = await _agreementHandler.getAllAgreements(
         UserSession().user!.id,
       );
-      final fetchedUsers = await _userHandler.getUsersByRole(Rol.admin.backendValue);
+
+      // Cargar usuarios con roles de Administrador y Entidad Externa
+      final List<User> fetchedUsers = [];
+      fetchedUsers.addAll(await _userHandler.getUsersByRole(Rol.admin.backendValue));
       fetchedUsers.addAll(await _userHandler.getUsersByRole(Rol.exEntity.backendValue));
 
       setState(() {
         _agreements = fetchedAgreements;
-        _tutors = fetchedUsers; // Asume que todos los usuarios pueden ser tutores
+        _assignableUsers = fetchedUsers; // Asigna los usuarios filtrados por rol
       });
     } catch (e) {
       setState(() {
@@ -89,7 +92,7 @@ class _AddtutorState extends State<Addtutor> {
   }
 
   // Función para manejar el clic del botón y llamar a la API
-  Future<void> _assignTutor() async {
+  Future<void> _assignTutor() async { // El nombre del método aquí se mantiene por coherencia con el backend
     // Validaciones
     if (_userSelfId == null) {
       setState(() {
@@ -103,9 +106,9 @@ class _AddtutorState extends State<Addtutor> {
       });
       return;
     }
-    if (_selectedTutor == null) {
+    if (_selectedAssignableUser == null) { // Renombrado aquí
       setState(() {
-        _message = 'Error: Por favor, selecciona un tutor.';
+        _message = 'Error: Por favor, selecciona un usuario a asignar.'; // Mensaje actualizado
       });
       return;
     }
@@ -117,15 +120,16 @@ class _AddtutorState extends State<Addtutor> {
 
     try {
       final int agreementId = _selectedAgreement!.id;
-      final int tutorId = _selectedTutor!.id;
+      final int assignableUserId = _selectedAssignableUser!.id; // Renombrado aquí
       final int userSelfId = _userSelfId!;
 
-      await _agreementHandler.addTutorToAgreement(agreementId, tutorId, userSelfId);
+      // La API espera tutorId, pero le estamos pasando el ID del usuario asignable
+      await _agreementHandler.addTutorToAgreement(agreementId, assignableUserId, userSelfId);
 
       setState(() {
-        _message = 'Tutor añadido exitosamente!';
+        _message = 'Usuario asignado exitosamente!'; // Mensaje actualizado
         _selectedAgreement = null; // Limpiar selección
-        _selectedTutor = null; // Limpiar selección
+        _selectedAssignableUser = null; // Limpiar selección
       });
     } catch (e) {
       setState(() {
@@ -145,7 +149,7 @@ class _AddtutorState extends State<Addtutor> {
     return Scaffold(
       backgroundColor: _darkBackground,
       appBar: AppBar(
-        title: const Text('Añadir Tutor al Convenio'),
+        title: const Text('Asignar Usuario al Convenio'), // Título de la AppBar actualizado
         backgroundColor: _darkBackground,
         foregroundColor: _textColor,
         elevation: 0,
@@ -212,26 +216,26 @@ class _AddtutorState extends State<Addtutor> {
                 items: _agreements.map<DropdownMenuItem<Agreement>>((Agreement agreement) {
                   return DropdownMenuItem<Agreement>(
                     value: agreement,
-                    child: Text('Convenio ${agreement.id} (Usuario: ${agreement.user.username})', style: TextStyle(color: _textColor)),
+                    child: Text('Convenio ${agreement.id}', style: TextStyle(color: _textColor)),
                   );
                 }).toList(),
                 hint: Text('Selecciona un convenio', style: TextStyle(color: _hintColor)),
               ),
               const SizedBox(height: 16.0),
 
-              // Dropdown para seleccionar Tutor
+              // Dropdown para seleccionar Usuario a Asignar (antes Tutor)
               DropdownButtonFormField<User>(
-                value: _selectedTutor,
+                value: _selectedAssignableUser, // Renombrado
                 onChanged: (User? newValue) {
                   setState(() {
-                    _selectedTutor = newValue;
+                    _selectedAssignableUser = newValue; // Renombrado
                   });
                 },
                 isExpanded: true,
                 dropdownColor: _cardColor,
                 iconEnabledColor: _accentGreen,
                 decoration: InputDecoration(
-                  labelText: 'Seleccionar Tutor',
+                  labelText: 'Seleccionar Usuario a Asignar', // ¡Texto cambiado!
                   labelStyle: TextStyle(color: _hintColor),
                   hintStyle: TextStyle(color: _hintColor),
                   prefixIcon: Icon(Icons.person_add, color: _accentGreen),
@@ -247,21 +251,31 @@ class _AddtutorState extends State<Addtutor> {
                   fillColor: _cardColor,
                 ),
                 style: TextStyle(color: _textColor),
-                items: _tutors.map<DropdownMenuItem<User>>((User user) {
+                items: _assignableUsers.map<DropdownMenuItem<User>>((User user) { // Usamos _assignableUsers
+                  String displayText = user.username;
+                  // Aquí personalizamos el texto basado en el rol
+                  if (user.role == Rol.admin.backendValue) { // Asume Rol.admin.backendValue es "Administrator"
+                    displayText = 'Admin: ${user.username}';
+                  } else if (user.role == Rol.exEntity.backendValue) { // Asume Rol.exEntity.backendValue es "ExternalEntity"
+                    displayText = 'Entidad Externa: ${user.username}';
+                  }
+                  // Si hay otros roles, puedes añadir más 'else if'
+
                   return DropdownMenuItem<User>(
                     value: user,
-                    child: Text('tutor: ${user.username}', style: TextStyle(color: _textColor)),
+                    // Muestra el nombre de usuario y su rol
+                    child: Text(displayText, style: TextStyle(color: _textColor)),
                   );
                 }).toList(),
-                hint: Text('Selecciona un tutor', style: TextStyle(color: _hintColor)),
+                hint: Text('Selecciona un usuario a asignar', style: TextStyle(color: _hintColor)), // ¡Texto cambiado!
               ),
             ],
             const SizedBox(height: 24.0),
 
-            // Botón para activar la asignación del tutor
+            // Botón para activar la asignación del usuario
             ElevatedButton.icon(
-              // Deshabilitar si carga, no hay user ID, o no se han seleccionado convenio/tutor, o si los datos iniciales aún no se cargan
-              onPressed: _isLoading || _userSelfId == null || _selectedAgreement == null || _selectedTutor == null || _isDataLoading
+              // Deshabilitar si carga, no hay user ID, o no se han seleccionado convenio/usuario, o si los datos iniciales aún no se cargan
+              onPressed: _isLoading || _userSelfId == null || _selectedAgreement == null || _selectedAssignableUser == null || _isDataLoading
                   ? null
                   : _assignTutor,
               style: ElevatedButton.styleFrom(
@@ -281,7 +295,7 @@ class _AddtutorState extends State<Addtutor> {
                     )
                   : const Icon(Icons.send, color: Colors.black),
               label: Text(
-                _isLoading ? 'Asignando...' : 'Asignar Tutor',
+                _isLoading ? 'Asignando...' : 'Asignar Usuario', // ¡Texto cambiado!
                 style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
             ),

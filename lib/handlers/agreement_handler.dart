@@ -32,7 +32,9 @@ class AgreementHandler {
     int tutorId,
     int userSelfId,
   ) async {
-    final url = Uri.parse('$baseUrl/agreements/$agreementId/assign-user?user_id=$tutorId&asigner_id=$userSelfId');
+    // ¡LA CORRECCIÓN CLAVE ESTÁ EN ESTA LÍNEA!
+    // Cambiamos 'asigner_id' a 'assigner_id' para que coincida con lo que el backend espera.
+    final url = Uri.parse('$baseUrl/agreements/$agreementId/assign-user?user_id=$tutorId&assigner_id=$userSelfId');
 
     final response = await http.patch(url);
 
