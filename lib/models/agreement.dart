@@ -23,6 +23,19 @@ class Agreement {
     required this.project,
     required this.status,
   });
+
+  static Agreement fromJson(Map<String, dynamic> json) {
+    return Agreement(
+      id: json['id'],
+      startDate: DateTime.parse(json['start_date']),
+      endDate: DateTime.parse(json['end_date']),
+      current: json['current'],
+      createdBy: User.fromJson(json['created_by']),
+      user: User.fromJson(json['user']),
+      project: Project.fromJson(json['project']),
+      status: fromString(json['status']),
+    );
+  }
 }
 
 class AgreementCreate {

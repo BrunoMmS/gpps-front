@@ -26,4 +26,33 @@ class AgreementHandler {
       throw Exception('Error al crear el acuerdo: ${response.body}');
     }
   }
+
+  Future<void> addTutorToAgreement(
+    int agreementId,
+    int tutorId,
+    int userSelfId,
+  ) async {
+    final url = Uri.parse('$baseUrl/agreements/$agreementId/assign-user?user_id=$tutorId&asigner_id=$userSelfId');
+
+    final response = await http.patch(url);
+
+    if (response.statusCode != 200 && response.statusCode != 201) {
+      throw Exception('Error al añadir el tutor al acuerdo: ${response.body}');
+    }
+  }
+
+  Future<List<Agreement>> getAllAgreements(
+    int userSessionId,
+  ) async {
+    final url = Uri.parse('$baseUrl/agreements/created-by/$userSessionId?requester_id=$userSessionId');
+
+    final response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      final List<dynamic> data = jsonDecode(response.body);
+      return data.map((item) => Agreement.fromJson(item)).toList().cast<Agreement>();
+    } else {
+      throw Exception('Error al obtener los convenios: ${response.body}');
+    }
+  }
 }

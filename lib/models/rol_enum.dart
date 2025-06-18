@@ -1,4 +1,4 @@
-enum Rol { student, exEntity, teacher, teacher2, admin }
+enum Rol { student, exEntity, inteacher, exteacher, admin }
 
 extension RolExtension on Rol {
   String get backendValue {
@@ -7,9 +7,9 @@ extension RolExtension on Rol {
         return "Student";
       case Rol.exEntity:
         return "ExternalEntity";
-      case Rol.teacher:
+      case Rol.inteacher:
         return "Teacher_UNRN";
-      case Rol.teacher2:
+      case Rol.exteacher:
         return "ExternalTeacher";
       case Rol.admin:
         return "Administrator";
@@ -22,9 +22,9 @@ extension RolExtension on Rol {
         return "Estudiante";
       case Rol.exEntity:
         return "Entidad Externa";
-      case Rol.teacher:
+      case Rol.inteacher:
         return "Tutor";
-      case Rol.teacher2:
+      case Rol.exteacher:
         return "Profesor Externo";
       case Rol.admin:
         return "Administrador";

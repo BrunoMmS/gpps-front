@@ -47,8 +47,8 @@ class _LoginInterfaceState extends State<LoginInterface> {
         final Map<Rol, String> roleRoutes = {
           Rol.admin: '/dashboardAdmin',
           Rol.student: '/dashboardStudent',
-          Rol.teacher: '/dashboardTutorUnrn',
-          Rol.teacher2: '/dashboardTutorExterno',
+          Rol.inteacher: '/dashboardTutorUnrn',
+          Rol.exteacher: '/dashboardTutorExterno',
           Rol.exEntity: '/dashboardExternalEntity',
         };
 
