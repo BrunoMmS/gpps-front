@@ -96,7 +96,7 @@ class MyApp extends StatelessWidget {
             ),
         '/createAgreement': (context) {
           return RoleGuard(
-            allowedRoles: [Rol.exEntity.backendValue, Rol.student.backendValue],
+            allowedRoles: [Rol.exEntity.backendValue, Rol.student.backendValue, Rol.admin.backendValue],
             child: CreateAgreementPage(),
           );
         },

@@ -61,17 +61,17 @@ class _DashboardAdminState extends State<DashboardAdmin> {
                   shrinkWrap: true,
                   children: [
                     DashboardButton(
-                      icon: Icons.check_circle_outline,
-                      label: 'Evaluar Proyecto',
+                      icon: Icons.supervisor_account_outlined,
+                      label: 'Asignar Usuario',
                       onTap: () {
-                        Navigator.pushNamed(context, '/evaluar_proyecto');
+                        Navigator.pushNamed(context, '/asignar_tutor');
                       },
                     ),
                     DashboardButton(
                       icon: Icons.publish_outlined,
                       label: 'Publicar Proyecto',
                       onTap: () {
-                        Navigator.pushNamed(context, '/publicar_proyecto');
+                        Navigator.pushNamed(context, '/proposeProject');
                       },
                     ),
                     DashboardButton(
@@ -86,6 +86,13 @@ class _DashboardAdminState extends State<DashboardAdmin> {
                       label: 'Enviar Notificación',
                       onTap: () {
                         Navigator.pushNamed(context, '/enviar_notificacion');
+                      },
+                    ),
+                    DashboardButton(
+                      icon: Icons.assignment_outlined,
+                      label: 'Crear Convenio',
+                      onTap: () {
+                        Navigator.pushNamed(context, '/createAgreement');
                       },
                     ),
                   ],

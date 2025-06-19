@@ -196,6 +196,7 @@ class _DashboardStudentState extends State<DashboardStudent> {
                   icon: Icons.track_changes,
                   label: "Seguimiento PPS",
                   onTap: () {
+                    Navigator.pushNamed(context, '/projectDetails');
                     // lógica para seguimiento PPS
                   },
                 ),
