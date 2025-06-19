@@ -5,7 +5,7 @@ import 'package:gpps_front/components/notification_button.dart';
 import 'package:gpps_front/components/welcome_banner.dart';
 import 'package:gpps_front/models/user.dart';
 import 'package:gpps_front/models/user_session.dart';
-
+import 'package:gpps_front/handlers/project_handler.dart';
 class DashboardAdmin extends StatefulWidget {
   const DashboardAdmin({super.key});
 
@@ -15,10 +15,12 @@ class DashboardAdmin extends StatefulWidget {
 
 class _DashboardAdminState extends State<DashboardAdmin> {
   User? user;
+  late ProjectHandler projectHandler;
 
   @override
   void initState() {
     super.initState();
+    projectHandler = ProjectHandler(baseUrl: 'http://127.0.0.1:8000');
     _loadUser();
   }
 
@@ -71,7 +73,7 @@ class _DashboardAdminState extends State<DashboardAdmin> {
                       icon: Icons.publish_outlined,
                       label: 'Publicar Proyecto',
                       onTap: () {
-                        Navigator.pushNamed(context, '/publicar_proyecto');
+                        Navigator.pushNamed(context, '/proposeProject');
                       },
                     ),
                     DashboardButton(

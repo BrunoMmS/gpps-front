@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import '../../handlers/project_handler.dart';
 import '../../models/project_complete.dart';
@@ -15,7 +17,7 @@ class ViewProjectAssign extends StatefulWidget {
 class _ViewProjectAssignState extends State<ViewProjectAssign> {
   late Future<ProjectComplete> _projectFuture;
   final ProjectHandler _projectHandler = ProjectHandler(
-    baseUrl: 'http://localhost:8000',
+    baseUrl: 'http://127.0.0.1:8000',
   );
 
   @override
@@ -24,24 +26,58 @@ class _ViewProjectAssignState extends State<ViewProjectAssign> {
     _projectFuture = _projectHandler.getProjectComplete(widget.projectId);
   }
 
-  Future<void> _joinProject(ProjectComplete project) async {
-    try {
-      final userId = UserSession().user!.id;
-      await _projectHandler.assignUserToProject(
-        userId: userId,
-        projectId: project.id,
-        userToAssign: userId,
-      );
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Te uniste al proyecto correctamente')),
-      );
-    } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Error al unirse: $e')));
-    }
+Future<void> _joinProject(ProjectComplete project) async {
+  // Validar sesión de usuario
+  final user = UserSession().user;
+  if (user == null) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Error: Usuario no autenticado'))
+    );
+    return;
   }
 
+  try {
+    // Verificar parámetros del método assignUserToProject
+    // Posiblemente solo necesites projectId y userId
+    await _projectHandler.assignUserToProject(
+      projectId: project.id,
+      userId: user.id,
+      userToAssign: user.id
+      // Remover userToAssign si es redundante
+    );
+    
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Te uniste al proyecto correctamente'),
+          backgroundColor: Colors.green,
+        )
+      );
+    }
+  } on HttpException catch (e) {
+    // Manejo específico para errores HTTP
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error HTTP: ${e.message}'))
+      );
+    }
+  } on FormatException catch (e) {
+    // Manejo específico para errores de formato
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error de formato: ${e.message}'))
+      );
+    }
+  } catch (e) {
+    // Otros errores
+    print('Error detallado al unirse al proyecto: $e');
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error inesperado: ${e.toString()}'))
+      );
+    }
+  }
+}
   Widget _buildProjectDetail(ProjectComplete project) {
     final Color cardColor = const Color(0xFF2C2C3E);
     final Color accentColor = Colors.tealAccent;
