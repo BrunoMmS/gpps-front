@@ -24,4 +24,19 @@ class TaskHandler {
       throw Exception('Error al crear la tarea: ${response.body}');
     }
   }
+
+  Future<void> setDoneTask(
+    int taskId,
+  ) async {
+    final url = Uri.parse('$baseUrl/activity/activities/task/$taskId');
+
+    final response = await http.put(
+      url,
+      headers: {'Content-Type': 'application/json'},
+    );
+
+    if (response.statusCode != 200 && response.statusCode != 201) {
+      throw Exception('Error al actualizar el estado de la tarea: ${response.body}');
+    }
+  }
 }

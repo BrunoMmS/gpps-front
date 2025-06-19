@@ -69,7 +69,7 @@ class _DashboardExternalState extends State<DashboardExternal> {
                     ),
                     DashboardButton(
                       icon: Icons.supervisor_account_outlined,
-                      label: 'Asignar Tutor',
+                      label: 'Asignar Usuario',
                       onTap: () {
                         Navigator.pushNamed(context, '/asignar_tutor');
                       },

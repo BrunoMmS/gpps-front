@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gpps_front/components/agreement_components/CreateAgreementPage.dart';
 import 'package:gpps_front/interfaces/Unauthorized.dart';
+import 'package:gpps_front/interfaces/agreements_pages/addtutor.dart';
 import 'package:gpps_front/interfaces/dashboards/dashboard_admin_interface.dart';
 import 'package:gpps_front/interfaces/dashboards/dashboard_student_interface.dart';
 import 'package:gpps_front/interfaces/login_interface.dart';
@@ -97,6 +98,12 @@ class MyApp extends StatelessWidget {
           return RoleGuard(
             allowedRoles: [Rol.exEntity.backendValue, Rol.student.backendValue],
             child: CreateAgreementPage(),
+          );
+        },
+        '/asignar_tutor': (context) {
+          return RoleGuard(
+            allowedRoles: [Rol.exEntity.backendValue, Rol.admin.backendValue],
+            child: Addtutor(),
           );
         },
       },
