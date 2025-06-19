@@ -22,7 +22,7 @@ class _ProjectAssignState extends State<ProjectAssign> {
   @override
   void initState() {
     super.initState();
-    _projectsFuture = _projectHandler.listProjects();
+    _projectsFuture = _projectHandler.listProjectsToAssign();
   }
 
   @override

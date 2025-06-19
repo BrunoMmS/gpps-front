@@ -45,6 +45,18 @@ class ProjectHandler {
     }
   }
 
+  Future<List<Project>> listProjectsToAssign() async {
+    final url = Uri.parse('$baseUrl/projects/getProjectsToAssign/');
+    final response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      final List jsonList = jsonDecode(response.body);
+      return jsonList.map<Project>((json) => Project.fromJson(json)).toList();
+    } else {
+      throw Exception('Error listando proyectos: ${response.body}');
+    }
+  }
+
   Future<List<Project>> listProjectsByUser(int userId) async {
     final url = Uri.parse('$baseUrl/projects/getProjectsWithUser/$userId');
     final response = await http.get(url);
